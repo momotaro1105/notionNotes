@@ -159,9 +159,9 @@ function setDivTagList() {
             // console.log(record); // ONLY
             parentTag = [...document.getElementsByClassName("notion-frame")][0];
             divTagList = [...parentTag.getElementsByTagName("div")];
-            observer.disconnect();
-
             loadChanges();
+            
+            observer.disconnect();
         })
 
         observer.observe(parentTag, {
@@ -234,6 +234,7 @@ function reBuildChanges(containerInnerText, containerTag, startOffset, endOffset
                 // [...divTagList[i].childNodes][0].firstChild === null
             ){
                 let targetTag   =   divTagList[i];
+                console.log([].indexOf.call(document.getElementsByTagName('*'), targetTag));
                 // console.log(targetTag);
                 // console.log([].indexOf.call(targetTag, containerInnerText));
                 let range       =   document.createRange();
@@ -278,6 +279,8 @@ function getSelectedText() {
     if (selected.rangeCount && selected.getRangeAt) {
         range = selected.getRangeAt(0);
         console.log(range);
+        console.log(range.startOffset);
+        console.log(range.endOffset);
     }
     if (range) {
         selected.removeAllRanges();
@@ -333,7 +336,7 @@ function storeChange(command) {
                 console.log(result); // ONLY
             })
         }
-        
+        // callback();
     })
     // chrome.storage.local.get(null, data => console.info(data)); // ONLY
 }
@@ -346,8 +349,7 @@ function storeChange(command) {
 function highlight() {
     try {
         getSelectedText();
-        storeChange('h_');
-        createSpan('highlighted');
+        storeChange('h_').then(createSpan('highlighted'));
     } catch (error) {
         if (error instanceof DOMException) {
             alert('overlapping edits are disallowed');
@@ -359,16 +361,14 @@ function highlight() {
 // underline selected text
 function underline() {
     getSelectedText();
-    storeChange('u_');
-    createSpan('underlined');
+    storeChange('u_').then(createSpan('underlined'));
 }
 
 
 // delete (line-through) selected text
 function lineThrough() {
     getSelectedText();
-    storeChange('d_');
-    createSpan('deleted');
+    storeChange('d_').then(createSpan('deleted'));
 }
 
 
