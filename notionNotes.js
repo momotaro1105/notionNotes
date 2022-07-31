@@ -157,8 +157,8 @@ function setDivTagList() {
 
         let observer = new MutationObserver(record => {
             // console.log(record); // ONLY
-            parentTag = [...document.getElementsByClassName("notion-frame")][0];
-            divTagList = [...parentTag.getElementsByTagName("div")];
+            parentTag   =   [...document.getElementsByClassName("notion-frame")][0];
+            divTagList  =   [...parentTag.getElementsByTagName("div")];
             loadChanges();
             
             observer.disconnect();
@@ -234,13 +234,11 @@ function reBuildChanges(containerInnerText, containerTag, startOffset, endOffset
                 // [...divTagList[i].childNodes][0].firstChild === null
             ){
                 let targetTag   =   divTagList[i];
-                console.log([].indexOf.call(document.getElementsByTagName('*'), targetTag));
-                // console.log(targetTag);
-                // console.log([].indexOf.call(targetTag, containerInnerText));
+                // console.log([].indexOf.call(document.getElementsByTagName('*'), targetTag));
+
                 let range       =   document.createRange();
-                console.log(targetTag.firstChild);
-                range.setStart(targetTag.firstChild, 1);
-                range.setEnd(targetTag.firstChild, 6);
+                range.setStart(targetTag.firstChild, startOffset);
+                range.setEnd(targetTag.firstChild, endOffset);
                 console.log(range);
                 let newElement = document.createElement('span');
                 newElement.classList.add('highlighted');
@@ -278,9 +276,6 @@ function getSelectedText() {
     let selected = window.getSelection();
     if (selected.rangeCount && selected.getRangeAt) {
         range = selected.getRangeAt(0);
-        console.log(range);
-        console.log(range.startOffset);
-        console.log(range.endOffset);
     }
     if (range) {
         selected.removeAllRanges();
@@ -319,7 +314,7 @@ function storeChange(command) {
             ]
 
             chrome.storage.local.set(changesMade, () => {
-                console.log(changesMade); // ONLY
+                // console.log(changesMade); // ONLY
             })
 
         } else {
@@ -333,10 +328,9 @@ function storeChange(command) {
             result[command + currentURL].push(addChange);
 
             chrome.storage.local.set(result, () => {
-                console.log(result); // ONLY
+                // console.log(result); // ONLY
             })
         }
-        // callback();
     })
     // chrome.storage.local.get(null, data => console.info(data)); // ONLY
 }
