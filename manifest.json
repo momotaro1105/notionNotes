@@ -1,0 +1,30 @@
+{
+    "name": "NotionNotes",
+    "description": "Custom note-taker for Notion Web. Hover over upper-left title to start",
+    "version": "1.0.0",
+    "manifest_version": 3,
+    "author": "Kenta Aratani",
+    "permissions": [
+        "tabs",
+        "activeTab",
+        "scripting",
+        "storage",
+        "contextMenus"
+    ],
+    "background": {
+        "service_worker": "background.js"
+    },
+    "web_accessible_resources": [
+        {
+            "resources": ["Assets/*.png"],
+            "matches": ["https://*.notion.site/*"]
+        }
+    ],
+    "content_scripts": [
+        {
+            "js":       ["notionNotes.js"],
+            "matches":  ["https://*.notion.site/*"],
+            "run_at":   "document_idle"
+        }
+    ]
+}
