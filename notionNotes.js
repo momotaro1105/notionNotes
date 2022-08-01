@@ -42,6 +42,9 @@ const stickyMenu =
             '<button id="summary">' +
                 '<img src="chrome-extension://jmnggonelndondgnmoafagecppgfpdhp/Assets/summary.png">' +
             '</button>' +
+            '<button id="load">' +
+                '<img src="chrome-extension://jmnggonelndondgnmoafagecppgfpdhp/Assets/load.png">' +
+            '</button>' +
             '<button type="button" class="close-toolbar toggle-toolbar">' +
                 '<img src="chrome-extension://jmnggonelndondgnmoafagecppgfpdhp/Assets/arrow_right.png">' +
     '</button></div></div>';
@@ -92,7 +95,7 @@ const addCSS =
         'text-decoration: line-through}';
 
 chrome.storage.local.get(null, data => console.info(data));
-console.log([...document.getElementsByTagName('*')]);
+// console.log([...document.getElementsByTagName('*')]);
 
 
 
@@ -159,7 +162,10 @@ function setDivTagList() {
             // console.log(record); // ONLY
             parentTag   =   [...document.getElementsByClassName("notion-frame")][0];
             divTagList  =   [...parentTag.getElementsByTagName("div")];
-            loadChanges();
+
+            document.getElementById("load").addEventListener("click", () => {
+                loadChanges();
+            })
             
             observer.disconnect();
         })
@@ -204,7 +210,7 @@ function loadChanges() {
                             result['h_' + currentURL][j]['startOffset'],
                             result['h_' + currentURL][j]['endOffset']
                         );
-
+                        
                     }
 
                 } else if (editTypes[i] === 'u_') {
@@ -234,23 +240,21 @@ function reBuildChanges(containerInnerText, containerTag, startOffset, endOffset
                 // [...divTagList[i].childNodes][0].firstChild === null
             ){
                 let targetTag   =   divTagList[i];
-                // console.log([].indexOf.call(document.getElementsByTagName('*'), targetTag));
-
                 let range       =   document.createRange();
                 range.setStart(targetTag.firstChild, startOffset);
                 range.setEnd(targetTag.firstChild, endOffset);
-                console.log(range);
+                // return range;
+
                 let newElement = document.createElement('span');
                 newElement.classList.add('highlighted');
                 range.surroundContents(newElement);
-                console.log('highlighted');
             }
 
         }
     } else if (containerTag !== "DIV") {
 
-        let targetTags = parentTag.getElementsByTagName(containerTag);
-        targetTags = [...targetTags];
+        let targetTags = [...parentTag.getElementsByTagName(containerTag)];
+        // targetTags = [...targetTags];
         
         for (let i = 0; i < targetTags.length; i++) {
 
@@ -281,6 +285,12 @@ function getSelectedText() {
         selected.removeAllRanges();
         selected.addRange(range);
     }
+    console.log(range);
+    let flag = range.commonAncestorContainer.parentNode;
+    if (!flag.isContentEditable) {
+        flag.contentEditable = true;
+    }
+    console.log(range);
 }
 
 
@@ -290,6 +300,7 @@ function createSpan(addClass) {
         let newElement = document.createElement('span');
         newElement.classList.add(addClass);
         range.surroundContents(newElement);
+        console.log('surrounded');
     } catch (error) {
         if (error instanceof DOMException) {
             alert('overlapping edits are disallowed');
@@ -314,7 +325,7 @@ function storeChange(command) {
             ]
 
             chrome.storage.local.set(changesMade, () => {
-                // console.log(changesMade); // ONLY
+                console.log(changesMade); // ONLY
             })
 
         } else {
@@ -328,7 +339,7 @@ function storeChange(command) {
             result[command + currentURL].push(addChange);
 
             chrome.storage.local.set(result, () => {
-                // console.log(result); // ONLY
+                console.log(result); // ONLY
             })
         }
     })
@@ -354,15 +365,27 @@ function highlight() {
 
 // underline selected text
 function underline() {
-    getSelectedText();
-    storeChange('u_').then(createSpan('underlined'));
+    try {
+        getSelectedText();
+        storeChange('u_').then(createSpan('underlined'));
+    } catch (error) {
+        if (error instanceof DOMException) {
+            alert('overlapping edits are disallowed');
+        }
+    }
 }
 
 
 // delete (line-through) selected text
 function lineThrough() {
-    getSelectedText();
-    storeChange('d_').then(createSpan('deleted'));
+    try {
+        getSelectedText();
+        storeChange('d_').then(createSpan('deleted'));
+    } catch (error) {
+        if (error instanceof DOMException) {
+            alert('overlapping edits are disallowed');
+        }
+    }
 }
 
 
